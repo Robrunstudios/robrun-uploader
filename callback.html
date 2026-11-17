@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Sign-in complete | RobRun Uploader</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html">Rob<span>Run</span> Studios</a>
+  </header>
+
+  <main>
+    <h1 id="title">Signing in…</h1>
+    <div class="card" id="result"></div>
+  </main>
+
+  <script>
+    // TikTok redirects here after login with ?code=...&state=... (or ?error=...).
+    // This page only displays the code so it can be pasted into the uploader on your PC.
+    // Nothing is sent anywhere.
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var code = params.get("code");
+      var state = params.get("state");
+      var error = params.get("error");
+      var title = document.getElementById("title");
+      var box = document.getElementById("result");
+
+      function el(tag, text, cls) {
+        var e = document.createElement(tag);
+        if (text) e.textContent = text;
+        if (cls) e.className = cls;
+        return e;
+      }
+
+      if (error) {
+        title.textContent = "Sign-in was not completed";
+        box.appendChild(el("p", "TikTok returned an error: " + error));
+        var desc = params.get("error_description");
+        if (desc) box.appendChild(el("p", desc, "muted"));
+        return;
+      }
+
+      if (!code) {
+        title.textContent = "Nothing to show";
+        box.appendChild(el("p", "This page is used after signing in with TikTok. Open it through the RobRun Uploader sign-in."));
+        return;
+      }
+
+      title.textContent = "Signed in with TikTok";
+      box.appendChild(el("p", "Copy this code and paste it into RobRun Uploader on your computer. It expires in a few minutes and works only once."));
+      var codeEl = el("div", code, "code");
+      codeEl.id = "code";
+      box.appendChild(codeEl);
+      if (state) box.appendChild(el("p", "State: " + state, "muted"));
+
+      var btn = el("button", "Copy code");
+      btn.addEventListener("click", function () {
+        navigator.clipboard.writeText(code).then(function () {
+          btn.textContent = "Copied!";
+        }, function () {
+          btn.textContent = "Select the code above and copy it manually";
+        });
+      });
+      box.appendChild(btn);
+    })();
+  </script>
+</body>
+</html>
